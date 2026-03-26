@@ -5,24 +5,41 @@ from sqlalchemy.orm import Session
 from . import crud, schemas, auth, models
 from .database import engine, get_db
 
-models.Base.metadata.create_all(bind=engine)
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware as StarletteCorS
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
 
 app = FastAPI(title="Flujo API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 def current_user(token: str = Depends(oauth2), db: Session = Depends(get_db)):
     return auth.verify_token(token, db)
 
-# ── Auth ──────────────────────────────────────────────────────────
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)},
+        headers={
+            "Access-Control-Allow-Origin": "http://localhost:5173",
+            "Access-Control-Allow-Credentials": "true",
+        }
+    )
+
+models.Base.metadata.create_all(bind=engine)
+
+# Auth 
 @app.post("/auth/register", response_model=schemas.UserOut, status_code=201)
 def register(data: schemas.UserCreate, db: Session = Depends(get_db)):
     if db.query(models.User).filter_by(email=data.email).first():
@@ -36,12 +53,12 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Credenciales incorrectas")
     return {"access_token": auth.create_token(user.id), "token_type": "bearer"}
 
-# ── Dashboard ─────────────────────────────────────────────────────
+# Dashboard 
 @app.get("/me/summary", response_model=schemas.Summary)
 def summary(user=Depends(current_user), db: Session = Depends(get_db)):
     return crud.get_balance_summary(db, user.id)
 
-# ── Transactions ──────────────────────────────────────────────────
+# Transactions 
 @app.post("/me/transactions", response_model=schemas.TransactionOut, status_code=201)
 def add_transaction(tx: schemas.TransactionCreate,
                     user=Depends(current_user), db: Session = Depends(get_db)):
