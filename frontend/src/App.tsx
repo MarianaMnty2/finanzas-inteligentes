@@ -4,6 +4,7 @@ import { useAuthStore } from './store/authStore'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import BudgetTable from './pages/BudgetTable'
 
 const queryClient = new QueryClient()
 
@@ -28,6 +29,9 @@ export default function App() {
             }
           />
           <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="/budget" element={
+            <PrivateRoute><BudgetTable /></PrivateRoute>}
+          />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

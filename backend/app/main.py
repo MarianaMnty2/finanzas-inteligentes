@@ -1,14 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from . import crud, schemas, auth, models
 from .database import engine, get_db
-
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.cors import CORSMiddleware as StarletteCorS
-from fastapi import Request
-from fastapi.responses import JSONResponse
 
 
 app = FastAPI(title="Flujo API", version="1.0.0")
@@ -20,22 +17,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
-
-def current_user(token: str = Depends(oauth2), db: Session = Depends(get_db)):
-    return auth.verify_token(token, db)
-
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,
-        content={"detail": str(exc)},
-        headers={
-            "Access-Control-Allow-Origin": "http://localhost:5173",
-            "Access-Control-Allow-Credentials": "true",
-        }
+        content={"detail": str(exc)}
     )
+
+oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token")
+
+def current_user(token: str = Depends(oauth2), db: Session = Depends(get_db)):
+    return auth.verify_token(token, db)
+
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -75,3 +69,28 @@ def delete_transaction(tx_id: int,
     if not crud.delete_transaction(db, tx_id, user.id):
         raise HTTPException(404, "Transacción no encontrada")
 
+@app.get("/me/budget-table")
+def budget_table(user=Depends(current_user), db: Session = Depends(get_db)):
+    rows = db.execute(text("""
+        SELECT
+            EXTRACT(MONTH FROM date)::int AS month,
+            type,
+            category,
+            SUM(amount) AS total
+        FROM transactions
+        WHERE user_id = :uid
+        GROUP BY month, type, category
+        ORDER BY month
+    """), {"uid": user.id}).fetchall()
+
+    result = {}
+    for row in rows:
+        m = row.month
+        if m not in result:
+            result[m] = []
+        result[m].append({
+            "type": row.type,
+            "category": row.category,
+            "total": float(row.total)
+        })
+    return result

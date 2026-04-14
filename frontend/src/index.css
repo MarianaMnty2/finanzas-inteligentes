@@ -210,3 +210,86 @@ body {
   background: var(--red-bg); border: 0.5px solid var(--red-border);
   border-radius: 7px; padding: 8px 10px; margin-bottom: 10px;
 }
+
+/* ── Budget Table ── */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 0.5px solid var(--border);
+}
+.budget-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  background: var(--bg-card);
+  min-width: 1100px;
+}
+.budget-table th {
+  background: var(--bg-app);
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 8px;
+  text-align: right;
+  border-bottom: 0.5px solid var(--border);
+  white-space: nowrap;
+}
+.budget-table th.col-cat,
+.budget-table td.col-cat {
+  text-align: left;
+  min-width: 160px;
+  padding-left: 16px;
+}
+.budget-table td {
+  padding: 7px 8px;
+  text-align: right;
+  border-bottom: 0.5px solid var(--border);
+  color: var(--text-primary);
+}
+.data-row:hover { background: rgba(255,255,255,0.02); }
+.amount { font-variant-numeric: tabular-nums; }
+.income-amount { color: var(--green); }
+.expense-amount { color: var(--red); }
+.leisure-amount { color: #f59e0b; }
+.savings-amount { color: var(--green); font-weight: 500; }
+.negative { color: var(--red); }
+.total-col { font-weight: 500; }
+
+.section-header td {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 10px 16px;
+  text-align: left;
+}
+.income-header td { background: rgba(74,222,128,0.08); color: var(--green); }
+.vital-header td { background: rgba(248,113,113,0.08); color: var(--red); }
+.leisure-header td { background: rgba(245,158,11,0.08); color: #f59e0b; }
+
+.section-total td {
+  font-weight: 500;
+  font-size: 12px;
+  padding: 10px 8px;
+  border-top: 0.5px solid var(--border-em);
+  border-bottom: 0.5px solid var(--border-em);
+}
+.income-total td { color: var(--green); background: rgba(74,222,128,0.04); }
+.vital-total td { color: var(--red); background: rgba(248,113,113,0.04); }
+.leisure-total td { color: #f59e0b; background: rgba(245,158,11,0.04); }
+
+.savings-row td {
+  font-weight: 500;
+  font-size: 13px;
+  padding: 12px 8px;
+  background: rgba(126,184,255,0.06);
+  border-top: 1px solid var(--border-em);
+  color: var(--accent);
+}
+.savings-row td.col-cat { color: var(--accent); }
+.loading {
+  display: flex; align-items: center; justify-content: center;
+  height: 100vh; color: var(--text-muted); font-family: 'DM Mono', monospace;
+}

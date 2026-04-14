@@ -40,6 +40,9 @@ export default function Dashboard() {
       <header className="topbar">
         <div className="logo">Finanzas Inteligentes</div>
         <div className="topbar-right">
+          <button className="btn-logout" onClick={() => navigate('/budget')}>
+            Ver tabla anual
+          </button>
           <button className="theme-btn" onClick={toggleTheme}>
             {theme === 'dark' ? '☀' : '☾'}
           </button>
