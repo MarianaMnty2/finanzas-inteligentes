@@ -6,6 +6,7 @@ import SummaryCards from '../components/SummaryCards'
 import TransactionForm from '../components/TransactionForm'
 import TransactionList from '../components/TransactionList'
 import { useState } from 'react'
+import TrendChart from '../components/TrendChart'
 
 export default function Dashboard() {
   const logout = useAuthStore((s) => s.logout)
@@ -59,6 +60,8 @@ export default function Dashboard() {
           totalExpenses={summary?.total_expenses ?? 0}
         />
 
+        <TrendChart />
+
         <div className="content-grid">
           <div className="left-col">
             <h3 className="section-title">Transacciones recientes</h3>
@@ -69,6 +72,7 @@ export default function Dashboard() {
               onSuccess={() => {
                 queryClient.invalidateQueries({ queryKey: ['summary'] })
                 queryClient.invalidateQueries({ queryKey: ['transactions'] })
+                queryClient.invalidateQueries({ queryKey: ['weekly-trend'] })
               }}
             />
           </div>

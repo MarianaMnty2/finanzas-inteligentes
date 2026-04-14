@@ -94,3 +94,26 @@ def budget_table(user=Depends(current_user), db: Session = Depends(get_db)):
             "total": float(row.total)
         })
     return result
+
+@app.get("/me/weekly-trend")
+def weekly_trend(user=Depends(current_user), db: Session = Depends(get_db)):
+    rows = db.execute(text("""
+        SELECT
+            date,
+            type,
+            SUM(amount) AS total
+        FROM transactions
+        WHERE user_id = :uid
+          AND date >= CURRENT_DATE - INTERVAL '6 days'
+        GROUP BY date, type
+        ORDER BY date
+    """), {"uid": user.id}).fetchall()
+
+    result = {}
+    for row in rows:
+        d = str(row.date)
+        if d not in result:
+            result[d] = {"income": 0, "expense": 0}
+        result[d][row.type] += float(row.total)
+
+    return result

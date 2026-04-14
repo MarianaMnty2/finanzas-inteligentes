@@ -211,7 +211,7 @@ body {
   border-radius: 7px; padding: 8px 10px; margin-bottom: 10px;
 }
 
-/* ── Budget Table ── */
+/* Budget Table */
 .table-wrapper {
   overflow-x: auto;
   border-radius: 14px;
@@ -293,3 +293,37 @@ body {
   display: flex; align-items: center; justify-content: center;
   height: 100vh; color: var(--text-muted); font-family: 'DM Mono', monospace;
 }
+
+/* Trend Chart */
+.chart-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.chart-legend {
+  display: flex;
+  gap: 16px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.income-dot { background: rgba(74,222,128,0.75); }
+.expense-dot { background: rgba(248,113,113,0.75); }
