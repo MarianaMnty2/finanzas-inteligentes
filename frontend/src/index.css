@@ -391,3 +391,45 @@ body {
   transition: all 0.2s;
 }
 .btn-confirm-no:hover { color: var(--text-primary); }
+
+/* Month Filter */
+.month-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.month-btn {
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 0.5px solid var(--border-em);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.month-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+.month-btn.active {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.year-select {
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 0.5px solid var(--border-em);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 6px;
+  outline: none;
+}

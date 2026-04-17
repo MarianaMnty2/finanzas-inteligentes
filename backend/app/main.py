@@ -49,8 +49,9 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
 
 # Dashboard 
 @app.get("/me/summary", response_model=schemas.Summary)
-def summary(user=Depends(current_user), db: Session = Depends(get_db)):
-    return crud.get_balance_summary(db, user.id)
+def summary(month: int = None, year: int = None,
+            user=Depends(current_user), db: Session = Depends(get_db)):
+    return crud.get_balance_summary(db, user.id, month, year)
 
 # Transactions 
 @app.post("/me/transactions", response_model=schemas.TransactionOut, status_code=201)
@@ -60,8 +61,9 @@ def add_transaction(tx: schemas.TransactionCreate,
 
 @app.get("/me/transactions", response_model=list[schemas.TransactionOut])
 def list_transactions(skip: int = 0, limit: int = 50,
+                      month: int = None, year: int = None,
                       user=Depends(current_user), db: Session = Depends(get_db)):
-    return crud.get_transactions(db, user.id, skip, limit)
+    return crud.get_transactions(db, user.id, skip, limit, month, year)
 
 @app.delete("/me/transactions/{tx_id}", status_code=204)
 def delete_transaction(tx_id: int,
@@ -96,7 +98,16 @@ def budget_table(user=Depends(current_user), db: Session = Depends(get_db)):
     return result
 
 @app.get("/me/weekly-trend")
-def weekly_trend(user=Depends(current_user), db: Session = Depends(get_db)):
+def weekly_trend(month: int = None, year: int = None,
+                 user=Depends(current_user), db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    from datetime import date
+
+    # Si no se pasa mes/año, usar el mes actual
+    today = date.today()
+    m = month or today.month
+    y = year or today.year
+
     rows = db.execute(text("""
         SELECT
             date,
@@ -104,10 +115,11 @@ def weekly_trend(user=Depends(current_user), db: Session = Depends(get_db)):
             SUM(amount) AS total
         FROM transactions
         WHERE user_id = :uid
-          AND date >= CURRENT_DATE - INTERVAL '6 days'
+          AND EXTRACT(MONTH FROM date) = :month
+          AND EXTRACT(YEAR  FROM date) = :year
         GROUP BY date, type
         ORDER BY date
-    """), {"uid": user.id}).fetchall()
+    """), {"uid": user.id, "month": m, "year": y}).fetchall()
 
     result = {}
     for row in rows:
@@ -116,4 +128,4 @@ def weekly_trend(user=Depends(current_user), db: Session = Depends(get_db)):
             result[d] = {"income": 0, "expense": 0}
         result[d][row.type] += float(row.total)
 
-    return result
+    return {"data": result, "month": m, "year": y}
